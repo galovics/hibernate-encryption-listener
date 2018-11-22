@@ -21,7 +21,7 @@ public class PhoneEncryptionTest {
     @Test
     public void testInsertionWorks() {
         String expectedPhoneNumber = "00361234567";
-        // Persisting a phone entity through JPA, this should encrypt the phone number column
+        // Persisting a phone entity through JPA, this should decrypt the phone number column
         UUID phoneId = txRunner.doInTransaction(em -> {
             Phone newPhone = new Phone(expectedPhoneNumber);
             em.persist(newPhone);
@@ -47,7 +47,7 @@ public class PhoneEncryptionTest {
     public void testUpdateWorks() {
         String oldPhoneNumber = "0987654321";
         String expectedPhoneNumber = "00361234567";
-        // Persisting a phone entity through JPA, this should encrypt the phone number column
+        // Persisting a phone entity through JPA, this should decrypt the phone number column
         UUID phoneId = txRunner.doInTransaction(em -> {
             Phone newPhone = new Phone(oldPhoneNumber);
             em.persist(newPhone);
