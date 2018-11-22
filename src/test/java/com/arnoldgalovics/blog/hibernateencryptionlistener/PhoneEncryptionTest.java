@@ -1,6 +1,8 @@
 package com.arnoldgalovics.blog.hibernateencryptionlistener;
 
 import com.arnoldgalovics.blog.hibernateencryptionlistener.repository.Phone;
+import net.ttddyy.dsproxy.QueryCountHolder;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PhoneEncryptionTest {
     @Autowired
     private TransactionalRunner txRunner;
+
+    @After
+    public void tearDown() {
+        txRunner.doInTransaction(em -> {
+            em.createQuery("DELETE FROM Phone").executeUpdate();
+        });
+        QueryCountHolder.clear();
+    }
 
     @Test
     public void testInsertionWorks() {
@@ -41,6 +51,9 @@ public class PhoneEncryptionTest {
             Phone phone = em.find(Phone.class, phoneId);
             assertThat(phone.getPhoneNumber()).isEqualTo(expectedPhoneNumber);
         });
+        assertThat(QueryCountHolder.getGrandTotal().getInsert()).isEqualTo(1);
+        assertThat(QueryCountHolder.getGrandTotal().getSelect()).isEqualTo(2);
+        assertThat(QueryCountHolder.getGrandTotal().getUpdate()).isEqualTo(0);
     }
 
     @Test
@@ -81,5 +94,8 @@ public class PhoneEncryptionTest {
             Phone phone = em.find(Phone.class, phoneId);
             assertThat(phone.getPhoneNumber()).isEqualTo(expectedPhoneNumber);
         });
+        assertThat(QueryCountHolder.getGrandTotal().getInsert()).isEqualTo(1);
+        assertThat(QueryCountHolder.getGrandTotal().getSelect()).isEqualTo(4);
+        assertThat(QueryCountHolder.getGrandTotal().getUpdate()).isEqualTo(1);
     }
 }
