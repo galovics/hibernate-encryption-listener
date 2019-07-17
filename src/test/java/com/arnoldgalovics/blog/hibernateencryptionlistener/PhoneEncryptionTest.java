@@ -98,4 +98,28 @@ public class PhoneEncryptionTest {
         assertThat(QueryCountHolder.getGrandTotal().getSelect()).isEqualTo(4);
         assertThat(QueryCountHolder.getGrandTotal().getUpdate()).isEqualTo(1);
     }
+
+    @Test
+    public void testNullWorks() {
+        // Persisting a phone entity with a null field value
+        UUID phoneId = txRunner.doInTransaction(em -> {
+            Phone newPhone = new Phone(null);
+            em.persist(newPhone);
+            return newPhone.getId();
+        });
+
+        // Checks if the database has the null value
+        txRunner.doInTransaction(em -> {
+            Query query = em.createNativeQuery("SELECT phone_number FROM Phone where id = :phoneId");
+            query.setParameter("phoneId", phoneId);
+            String nativePhoneNumber = (String) query.getSingleResult();
+            assertThat(nativePhoneNumber).isNull();
+        });
+
+        // Checks if the decryption handles null value from db
+        txRunner.doInTransaction(em -> {
+            Phone phone = em.find(Phone.class, phoneId);
+            assertThat(phone.getPhoneNumber()).isNull();
+        });
+    }
 }
