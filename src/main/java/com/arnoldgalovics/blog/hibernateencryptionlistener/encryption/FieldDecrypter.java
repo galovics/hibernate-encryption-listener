@@ -18,9 +18,11 @@ public class FieldDecrypter {
     private void decryptField(Field field, Object[] state, String[] propertyNames) {
         int propertyIndex = EncryptionUtils.getPropertyIndex(field.getName(), propertyNames);
         Object currentValue = state[propertyIndex];
-        if (!(currentValue instanceof String)) {
-            throw new IllegalStateException("Encrypted annotation was used on a non-String field");
+        if (currentValue != null) {
+            if (!(currentValue instanceof String)) {
+                throw new IllegalStateException("Encrypted annotation was used on a non-String field");
+            }
+            state[propertyIndex] = decrypter.decrypt(currentValue.toString());
         }
-        state[propertyIndex] = decrypter.decrypt(currentValue.toString());
     }
 }
